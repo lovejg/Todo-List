@@ -1,0 +1,33 @@
+const jwt = require("jsonwebtoken");
+const User = require("../models");
+
+const authMiddleware = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization; // Authorization 헤더에서 토큰 가져오기
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "인증 토큰이 없습니다." });
+    }
+
+    const token = authHeader.split(" ")[1]; // 실제 토큰 값만 추출
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // 토큰 검증(유효성 + 만료여부) + user.id 추출
+
+    const user = await User.findByPk(decoded.id); // 토큰에 있는 userId로 사용자 조회
+
+    if (!user) {
+      return res.status(401).json({ message: "유효하지 않은 사용자입니다." });
+    }
+
+    req.user = user; // req.user에 사용자 정보 추가(다음 컨트롤러에서 사용 가능)
+
+    next();
+  } catch (error) {
+    console.log("Auth error: ", error);
+    return res
+      .status(401)
+      .json({ message: "인증에 실패했습니다. 다시 로그인해주세요." });
+  }
+};
+
+module.exports = authMiddleware;
