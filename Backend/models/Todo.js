@@ -9,7 +9,7 @@ const Todo = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    text: {
+    title: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
