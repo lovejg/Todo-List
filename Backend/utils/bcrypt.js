@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 // 비밀번호 암호화(단방향)
 const hashPassword = async (password) => {
