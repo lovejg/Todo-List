@@ -12,7 +12,6 @@ const sequelize = new Sequelize(
   }
 );
 
-// 당연하지만 DB 작업은 시간이 걸리니까 async, await
 const connectDB = async () => {
   try {
     await sequelize.authenticate(); // DB 연결

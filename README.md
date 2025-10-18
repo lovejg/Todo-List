@@ -13,3 +13,5 @@ DB 접속: mysql -u root -p (리눅스라서 이렇게 접속해야 됨)
 - 일단은 CommonJS로 진행중(추후 변경 가능)
 
 ## Frontend
+
+npm run dev로 실행

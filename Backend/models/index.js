@@ -15,7 +15,7 @@ Todo.belongsTo(User, { foreignKey: "user_id" });
 Team.hasMany(Todo, { foreignKey: "team_id" });
 Todo.belongsTo(Team, { foreignKey: "team_id" });
 
-// Team : User = 1 : N (Team의 소유자/owner)
+// User(Owner) : Team = 1 : N (owner가 따로 있기 때문에 이것도 따로 세팅해주는거임)
 Team.belongsTo(User, { foreignKey: "owner_id" });
 User.hasMany(Team, { foreignKey: "owner_id" });
 
@@ -24,5 +24,4 @@ module.exports = {
   Team,
   TeamUser,
   Todo,
-  initModels,
 };
