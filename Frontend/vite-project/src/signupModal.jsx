@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './signUpModal.css';
 
 function SignupModal({ isOpen, onClose, darkMode }) {
   const [name, setName] = useState('');
