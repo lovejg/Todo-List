@@ -9,7 +9,7 @@ const createTeam = async (req, res) => {
     const userId = req.user.id; // 이거는 authMiddleware에서 얻는거임(로그인한 사용자 id)
 
     if (!name) {
-      return res.status(400).json({ message: "팀 이름을 입력해주세요." });
+      return res.status(400).json({ error: "팀 이름을 입력해주세요." });
     }
 
     const team = await Team.create({
@@ -20,7 +20,7 @@ const createTeam = async (req, res) => {
     await TeamUser.create({ team_id: team.id, user_id: userId });
     res.status(201).json({ message: "팀이 생성되었습니다.", team });
   } catch (error) {
-    res.status(500).json({ message: "팀 생성 중 오류가 발생했습니다." });
+    res.status(500).json({ error: "팀 생성 중 오류가 발생했습니다." });
   }
 };
 
@@ -35,7 +35,7 @@ const getMyTeams = async (req, res) => {
 
     res.status(200).json(teams);
   } catch (error) {
-    res.status(500).json({ message: "팀 목록 조회 중 오류가 발생했습니다." });
+    res.status(500).json({ error: "팀 목록 조회 중 오류가 발생했습니다." });
   }
 };
 
@@ -54,11 +54,11 @@ const getTeamDetail = async (req, res) => {
     });
 
     if (!team) {
-      return res.status(404).json({ message: "팀을 찾을 수 없습니다." });
+      return res.status(404).json({ error: "팀을 찾을 수 없습니다." });
     }
     res.status(200).json(team);
   } catch (error) {
-    res.status(500).json({ message: "팀 상세 조회 중 오류가 발생했습니다." });
+    res.status(500).json({ error: "팀 상세 조회 중 오류가 발생했습니다." });
   }
 };
 
@@ -74,13 +74,13 @@ const deleteTeam = async (req, res) => {
 
     // 해당 팀 멤버 소속인지 확인
     if (!member) {
-      return res.status(403).json({ message: "해당 팀에 속해 있지 않습니다" });
+      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다" });
     }
 
     await Team.destroy({ where: { id: teamId } });
     res.status(200).json({ message: "팀이 삭제됐습니다." });
   } catch (error) {
-    res.status(500).json({ message: "팀 삭제 중 오류가 발생했습니다." });
+    res.status(500).json({ error: "팀 삭제 중 오류가 발생했습니다." });
   }
 };
 
@@ -98,7 +98,7 @@ const inviteMember = async (req, res) => {
     if (!existUser) {
       return res
         .status(404)
-        .json({ message: "해당 이메일의 사용자를 찾을 수 없습니다." });
+        .json({ error: "해당 이메일의 사용자를 찾을 수 없습니다." });
     }
 
     const alreadyTeam = await TeamUser.findOne({
@@ -109,13 +109,13 @@ const inviteMember = async (req, res) => {
     if (alreadyTeam) {
       return res
         .status(400)
-        .json({ message: "이미 팀에 속해 있는 사용자입니다." });
+        .json({ error: "이미 팀에 속해 있는 사용자입니다." });
     }
 
     await TeamUser.create({ team_id: teamId, user_id: existUser.id });
     res.status(201).json({ message: `${email}님이 팀에 초대되었습니다.` });
   } catch (error) {
-    res.status(500).json({ message: "팀 초대 중 오류가 발생했습니다." });
+    res.status(500).json({ error: "팀 초대 중 오류가 발생했습니다." });
   }
 };
 
@@ -131,7 +131,7 @@ const getTeamTodos = async (req, res) => {
       where: { team_id: teamId, user_id: userId },
     });
     if (!isMember) {
-      return res.status(403).json({ message: "팀에 속해 있지 않습니다." });
+      return res.status(403).json({ error: "팀에 속해 있지 않습니다." });
     }
 
     const todos = await Todo.findAll({
@@ -156,7 +156,7 @@ const createTeamTodo = async (req, res) => {
       where: { team_id: teamId, user_id: userId },
     });
     if (!isMember) {
-      return res.status(403).json({ message: "해당 팀에 속해 있지 않습니다." });
+      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다." });
     }
 
     const todo = await Todo.create({
@@ -183,12 +183,12 @@ const updateTeamTodo = async (req, res) => {
       where: { team_id: teamId, user_id: userId },
     });
     if (!isMember) {
-      return res.status(403).json({ message: "해당 팀에 속해 있지 않습니다." });
+      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다." });
     }
 
     const todo = await Todo.findOne({ where: { id: todoId, team_id: teamId } });
     if (!todo) {
-      return res.status(404).json({ message: "해당 Todo를 찾을 수 없습니다." });
+      return res.status(404).json({ error: "해당 Todo를 찾을 수 없습니다." });
     }
 
     todo.title = title || todo.title;
@@ -211,12 +211,12 @@ const deleteTeamTodo = async (req, res) => {
       where: { team_id: teamId, user_id: userId },
     });
     if (!isMember) {
-      return res.status(403).json({ message: "해당 팀에 속해 있지 않습니다." });
+      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다." });
     }
 
     const todo = await Todo.findOne({ where: { id: todoId, team_id: teamId } });
     if (!todo) {
-      return res.status(404).json({ message: "해당 Todo를 찾을 수 없습니다." });
+      return res.status(404).json({ error: "해당 Todo를 찾을 수 없습니다." });
     }
 
     await todo.destroy();
@@ -238,12 +238,12 @@ const toggleTeamTodo = async (req, res) => {
       where: { team_id: teamId, user_id: userId },
     });
     if (!isMember) {
-      return res.status(403).json({ message: "해당 팀에 속해 있지 않습니다." });
+      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다." });
     }
 
     const todo = await Todo.findOne({ where: { id: todoId, team_id: teamId } });
     if (!todo) {
-      return res.status(404).json({ message: "해당 Todo를 찾을 수 없습니다." });
+      return res.status(404).json({ error: "해당 Todo를 찾을 수 없습니다." });
     }
 
     todo.done = !todo.done;

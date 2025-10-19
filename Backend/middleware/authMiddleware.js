@@ -13,7 +13,7 @@ const authMiddleware = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // 토큰 검증(유효성 + 만료여부) + user.id 추출
 
-    const user = await User.findByPk(decoded.id); // 토큰에 있는 userId로 사용자 조회
+    const user = await User.findByPk(decoded.id); // 토큰에 있는 user_id로 사용자 조회
 
     if (!user) {
       return res.status(401).json({ error: "유효하지 않은 사용자입니다." });
@@ -21,7 +21,7 @@ const authMiddleware = async (req, res, next) => {
 
     req.user = user; // req.user에 사용자 정보 추가(다음 컨트롤러에서 사용 가능)
 
-    next(); // 미들웨어 체이닝을 사용하기 때문에(todos.js에서 router 부분 참고) next()가 반드시 필요(오른쪽에 써있는 함수로 넘겨야 됨)
+    next(); // 미들웨어 체이닝을 사용하기 때문에(todos.js에서 router 부분 참고) next()가 반드시 필요
   } catch (error) {
     return res
       .status(401)
