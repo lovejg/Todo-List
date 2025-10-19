@@ -6,6 +6,7 @@ import TeamModal from './teamModal.jsx';
 import EditModal from './editModal.jsx';
 import InviteModal from './inviteModal.jsx';
 import { useEffect, useRef } from 'react';
+import SignupModal from './signUpModal.jsx';
 
 
 function App() {
@@ -22,7 +23,8 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false); // 메뉴 열림 상태
   const [selectedTeam, setSelectedTeam] = useState(null); // 선택된 팀 이름
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
-  const [invites, setInvites] = useState([]); 
+  const [invites, setInvites] = useState([]);
+  const [signupModalOpen, setSignupModalOpen] = useState(false);
   const menuRef = useRef(null);
 
   // 할 일 추가 (현재 페이지에 따라)
@@ -160,7 +162,7 @@ function App() {
             {darkMode ? '☀️ 라이트모드' : '🌙 야간모드'}
           </button>
           <button className="nav-btn">로그인</button>
-          <button className="nav-btn">회원가입</button>
+          <button className="nav-btn" onClick={() => setSignupModalOpen(true)}>회원가입</button>
         </div>
       </nav>
 
@@ -249,6 +251,11 @@ function App() {
         teamName={selectedTeam}
         invites={invites}
         setInvites={setInvites}
+      />
+
+      <SignupModal
+        isOpen={signupModalOpen}
+        onClose={() => setSignupModalOpen(false)}
       />
     </div>
   );
