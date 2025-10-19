@@ -5,8 +5,9 @@ import './App.css';
 import TeamModal from './teamModal.jsx';
 import EditModal from './editModal.jsx';
 import InviteModal from './inviteModal.jsx';
-import { useEffect, useRef } from 'react';
 import SignupModal from './signupModal.jsx';
+import { useEffect, useRef } from 'react';
+
 
 
 function App() {
@@ -35,7 +36,7 @@ function App() {
       if (activePage === 'personal') {
         setPersonalTodos([...personalTodos, newTodo]);
       } else {
-        setTeams(teams.map(team =>
+        setTeams(teams.map(team => 
           team.name === activePage ? { ...team, todos: [...team.todos, newTodo] } : team
         ));
       }
@@ -112,7 +113,7 @@ function App() {
   // 팀 생성
   const createTeam = (name) => {
     if (name.trim() && !teams.some(team => team.name === name)) {
-      setTeams([...teams, { name, todos: [] }]);
+      setTeams([...teams, { name, todos: []}]);
     }
   };
 

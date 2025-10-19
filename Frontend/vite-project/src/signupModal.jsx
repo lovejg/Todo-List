@@ -22,8 +22,8 @@ function SignupModal({ isOpen, onClose, darkMode }) {
   };
 
   return (
-    <div className={`modal-overlay ${darkMode ? 'dark-mode' : ''}`}>
-      <div className="modal">
+    <div className={`modal ${darkMode ? 'dark-mode' : ''}`}>
+      <div className="modal-content">
         <h2>회원가입</h2>
         <form onSubmit={handleSubmit}>
           <input
