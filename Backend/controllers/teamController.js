@@ -5,7 +5,8 @@ const { Todo, Team, TeamUser, User } = require("../models");
 // 팀 생성
 const createTeam = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name } = req.body;
+    // const { name, description } = req.body; // 근데 이거 owner_id도 추가할 생각 해야됨
     const userId = req.user.id; // 이거는 authMiddleware에서 얻는거임(로그인한 사용자 id)
 
     if (!name) {
@@ -14,7 +15,7 @@ const createTeam = async (req, res) => {
 
     const team = await Team.create({
       name,
-      description,
+      // description,
       owner_id: req.user.id,
     });
     await TeamUser.create({ team_id: team.id, user_id: userId });
@@ -32,6 +33,9 @@ const getMyTeams = async (req, res) => {
     const teams = await Team.findAll({
       include: [{ model: TeamUser, where: { user_id: userId } }],
     });
+    if (!teams) {
+      return res.status(404).json({ error: "속한 팀이 없습니다." });
+    }
 
     res.status(200).json(teams);
   } catch (error) {
@@ -138,6 +142,10 @@ const getTeamTodos = async (req, res) => {
       where: { team_id: teamId },
       order: [["created_at", "DESC"]],
     });
+
+    if (!todos) {
+      return res.status(404).json({ error: "Todo를 찾을 수 없습니다!" });
+    }
 
     res.status(200).json(todos);
   } catch (error) {

@@ -13,10 +13,10 @@ const Team = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
+    // description: {
+    //   type: DataTypes.TEXT,
+    //   allowNull: true,
+    // },
     owner_id: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,

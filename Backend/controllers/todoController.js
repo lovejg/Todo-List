@@ -7,6 +7,9 @@ const getPersonalTodos = async (req, res) => {
       where: { user_id: req.user.id },
       order: [["createdAt", "DESC"]],
     });
+    if (!todos) {
+      return res.status(404).json({ error: "Todo를 찾을 수 없습니다!" });
+    }
     res.status(200).json(todos);
   } catch (error) {
     res.status(500).json({ error: "서버 오류" });
