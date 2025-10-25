@@ -1,40 +1,46 @@
-import { useState } from 'react';
-import './loginModal.css';
+import { useState } from "react";
+import "./loginModal.css";
 
 function LoginModal({ isOpen, onClose, darkMode }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   if (!isOpen) return null;
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
-      const res = await fetch('http://localhost:4000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      console.log("Attempting login with:", { email });
+      const res = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      
+
       const data = await res.json();
-      
+      console.log("Login response: ", data);
+
       if (!res.ok) {
-        alert(data.error || '로그인 실패');
+        alert(data.error || "로그인 실패");
         return;
       }
 
+      // 토큰 저장 전후 확인
+      console.log("Token from server:", data.token);
+      localStorage.setItem("token", data.token);
+      console.log("Stored token:", localStorage.getItem("token"));
       // 로그인 성공 시 토큰 저장
-      localStorage.setItem('token', data.token);
-      alert('로그인이 완료되었습니다.');
+      alert("로그인이 완료되었습니다.");
       onClose();
     } catch (err) {
-      alert('서버 오류');
+      console.error("Login error: ", err);
+      alert("서버 오류");
     }
   };
 
   return (
-    <div className={`modal ${darkMode ? 'dark-mode' : ''}`}>
+    <div className={`modal ${darkMode ? "dark-mode" : ""}`}>
       <div className="modal-content">
         <h2>로그인</h2>
         <form onSubmit={handleSubmit}>
@@ -53,7 +59,9 @@ function LoginModal({ isOpen, onClose, darkMode }) {
             required
           />
           <button type="submit">로그인</button>
-          <button type="button" onClick={onClose}>취소</button>
+          <button type="button" onClick={onClose}>
+            취소
+          </button>
         </form>
       </div>
     </div>

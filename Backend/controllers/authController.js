@@ -24,6 +24,8 @@ const register = async (req, res) => {
     // JWT 발급
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser);
+    console.log("accessToken: ", accessToken);
+    console.log("refreshToken: ", refreshToken);
 
     res.status(201).json({
       message: "회원가입 완료",
