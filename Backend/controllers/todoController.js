@@ -20,8 +20,13 @@ const getPersonalTodos = async (req, res) => {
 const createPersonalTodo = async (req, res) => {
   try {
     const { title } = req.body;
+    const trimmedTitle = typeof title === "string" ? title.trim() : "";
+
+    if (!trimmedTitle) {
+      return res.status(400).json({ error: "할 일 제목을 입력해주세요." });
+    }
     const todo = await Todo.create({
-      title,
+      title: trimmedTitle,
       user_id: req.user.id,
     });
     res.status(201).json(todo);
@@ -41,12 +46,20 @@ const updatePersonalTodo = async (req, res) => {
     if (!todo) {
       return res.status(404).json({ error: "Todo를 찾을 수 없습니다!" });
     }
-    if (title !== null && title !== undefined) {
-      todo.title = title;
+    if (title === null || title === undefined) {
+      return res.status(400).json({ error: "수정할 내용을 입력해주세요." });
     }
+
+    const trimmedTitle = typeof title === "string" ? title.trim() : "";
+
+    if (!trimmedTitle) {
+      return res.status(400).json({ error: "수정할 내용을 입력해주세요." });
+    }
+    todo.title = trimmedTitle;
     await todo.save();
     res.status(200).json(todo);
   } catch (error) {
+    console.log("Failed to update: ", error);
     res.status(500).json({ error: "서버 오류" });
   }
 };

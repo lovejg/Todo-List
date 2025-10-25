@@ -1,15 +1,7 @@
 import { useState } from "react";
 import "./editModal.css"; // ...existing code...
 
-const EditModal = ({
-  isOpen,
-  onClose,
-  onSave,
-  newText,
-  setNewText,
-  todoId,
-  teamId,
-}) => {
+const EditModal = ({ isOpen, onClose, onSave, newText, setNewText }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -18,43 +10,29 @@ const EditModal = ({
   const handleSave = async (e) => {
     e.preventDefault();
     setError("");
-    if (!newText.trim()) return;
+    const trimmedText = newText.trim();
+    if (!trimmedText) {
+      setError("수정할 내용을 입력해주세요");
+      return;
+    }
+
+    if (!onSave) {
+      return;
+    }
 
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("로그인이 필요합니다.");
+      const success = await onSave(trimmedText);
+      if (!success) {
+        setError("ㅈ됨 수정 실패함 ㅅㅂ");
         return;
       }
 
-      const endpoint = teamId
-        ? `http://localhost:4000/api/team/${teamId}/todo/${todoId}` // Backend/routes/teams.js: PUT /:id/todo/:todoId
-        : `http://localhost:4000/api/todo/personal/${todoId}`; // 개인 Todo 업데이트 (백엔드에 맞게 경로 확인)
-
-      const res = await fetch(endpoint, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ text: newText }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "수정에 실패했습니다.");
-        return;
-      }
-
-      // onSave 콜백으로 변경된 할일 전달하거나 단순히 리스트 갱신 트리거
-      if (onSave) onSave(data.todo || data);
       onClose();
     } catch (err) {
       setError("서버 오류가 발생했습니다.");
     } finally {
       setLoading(false);
-      setNewText("");
     }
   };
 

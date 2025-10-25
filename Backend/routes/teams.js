@@ -42,9 +42,9 @@ router.post("/:id/todo", createTeamTodo);
 router.put("/:id/todo/:todoId", updateTeamTodo);
 
 // 팀 Todo 삭제
-router.patch("/:id/todo/:todoId", deleteTeamTodo);
+router.delete("/:id/todo/:todoId", deleteTeamTodo);
 
 // 팀 Todo 완료 여부 토글
-router.delete("/:id/todo/:todoId/toggle", toggleTeamTodo);
+router.patch("/:id/todo/:todoId/toggle", toggleTeamTodo);
 
 module.exports = router;

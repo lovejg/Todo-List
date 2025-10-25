@@ -10,37 +10,21 @@ const TeamModal = ({ isOpen, onClose, onCreate, teamName, setTeamName }) => {
     e.preventDefault();
     setError("");
 
-    if (!teamName.trim()) {
+    const trimmedName = teamName.trim();
+    if (!trimmedName) {
       setError("팀 이름을 입력해주세요.");
       return;
     }
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("로그인이 필요합니다.");
+      const result = await onCreate(trimmedName);
+      if (result?.success) {
+        setTeamName("");
+        onClose();
         return;
       }
 
-      const res = await fetch("http://localhost:4000/api/team", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: teamName }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "팀 생성에 실패했습니다.");
-        return;
-      }
-
-      onCreate(data.team);
-      setTeamName("");
-      onClose();
+      setError(result?.error || "팀 생성 ㅈ됨 ㅋㅋ");
     } catch (err) {
       setError("서버 오류가 발생했습니다.");
       console.error("Error creating team:", err);

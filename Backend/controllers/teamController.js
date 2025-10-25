@@ -30,12 +30,21 @@ const getMyTeams = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const teams = await Team.findAll({
-      include: [{ model: TeamUser, where: { user_id: userId } }],
+    const memberships = await TeamUser.findAll({
+      where: { user_id: userId },
+      attributes: ["team_id"],
     });
-    if (!teams) {
-      return res.status(404).json({ error: "속한 팀이 없습니다." });
+    if (!memberships.length) {
+      return res.status(200).json([]);
     }
+    const teamIds = [
+      ...new Set(memberships.map((membership) => membership.team_id)),
+    ];
+
+    const teams = await Team.findAll({
+      where: { id: teamIds },
+      order: [["createdAt", "DESC"]],
+    });
 
     res.status(200).json(teams);
   } catch (error) {
@@ -140,7 +149,7 @@ const getTeamTodos = async (req, res) => {
 
     const todos = await Todo.findAll({
       where: { team_id: teamId },
-      order: [["created_at", "DESC"]],
+      order: [["createdAt", "DESC"]],
     });
 
     if (!todos) {

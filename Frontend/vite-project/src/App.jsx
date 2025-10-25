@@ -487,7 +487,7 @@ function App() {
           </button>
           {teams.map((team) => (
             <button
-              key={team._id}
+              key={team.id}
               className="todo-btn-team"
               onClick={() => setActivePage(team.id)}
             >
@@ -616,8 +616,6 @@ function App() {
         onSave={saveEdit}
         newText={newText}
         setNewText={setNewText}
-        todoId={editTodoId}
-        teamId={activePage !== "personal" ? activePage : undefined}
       />
 
       <ConfirmDeleteModal
