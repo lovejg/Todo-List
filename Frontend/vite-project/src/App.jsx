@@ -47,7 +47,7 @@ function App() {
         try {
             setIsLoading(true);
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:4000/api/todos', {
+            const res = await fetch('http://localhost:4000/api/todo/personal', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -69,7 +69,7 @@ function App() {
         try {
             setIsLoading(true);
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:4000/api/teams', {
+            const res = await fetch('http://localhost:4000/api/team', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -81,7 +81,7 @@ function App() {
             }
         } catch (err) {
             setError('서버 연결에 실패했습니다.');
-            console.error('Error fetching teams:', err);
+            console.error('Error fetching team:', err);
         } finally {
             setIsLoading(false);
         }
@@ -91,7 +91,7 @@ function App() {
         try {
             setIsLoading(true);
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:4000/api/teams/${teamId}/todo`, {
+            const res = await fetch(`http://localhost:4000/api/team/${teamId}/todo`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -120,8 +120,8 @@ function App() {
             setIsLoading(true);
             const token = localStorage.getItem('token');
             const endpoint = activePage === 'personal'
-                ? 'http://localhost:4000/api/todos'
-                : `http://localhost:4000/api/teams/${selectedTeam}/todo`;
+                ? 'http://localhost:4000/api/todo/personal'
+                : `http://localhost:4000/api/team/${selectedTeam}/todo`;
 
             const res = await fetch(endpoint, {
                 method: 'POST',
@@ -156,8 +156,8 @@ function App() {
             setIsLoading(true);
             const token = localStorage.getItem('token');
             const endpoint = activePage === 'personal'
-                ? `http://localhost:4000/api/todos/${todoId}/toggle`
-                : `http://localhost:4000/api/teams/${selectedTeam}/todo/${todoId}/toggle`;
+                ? `http://localhost:4000/api/todo/personal/${todoId}/toggle`
+                : `http://localhost:4000/api/team/${selectedTeam}/todo/${todoId}/toggle`;
 
             const res = await fetch(endpoint, {
                 method: 'PATCH',
@@ -187,8 +187,8 @@ function App() {
             setIsLoading(true);
             const token = localStorage.getItem('token');
             const endpoint = activePage === 'personal'
-                ? `http://localhost:4000/api/todos/${todoId}`
-                : `http://localhost:4000/api/teams/${selectedTeam}/todo/${todoId}`;
+                ? `http://localhost:4000/api/todo/personal/${todoId}`
+                : `http://localhost:4000/api/team/${selectedTeam}/todo/${todoId}`;
 
             const res = await fetch(endpoint, {
                 method: 'DELETE',
@@ -224,8 +224,8 @@ function App() {
             setIsLoading(true);
             const token = localStorage.getItem('token');
             const endpoint = activePage === 'personal'
-                ? `http://localhost:4000/api/todos/${editTodoId}`
-                : `http://localhost:4000/api/teams/${selectedTeam}/todo/${editTodoId}`;
+                ? `http://localhost:4000/api/todo/personal/${editTodoId}`
+                : `http://localhost:4000/api/team/${selectedTeam}/todo/${editTodoId}`;
 
             const res = await fetch(endpoint, {
                 method: 'PUT',
@@ -262,7 +262,7 @@ function App() {
         try {
             setIsLoading(true);
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:4000/api/teams', {
+            const res = await fetch('http://localhost:4000/api/team', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -291,7 +291,7 @@ function App() {
         try {
             setIsLoading(true);
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:4000/api/teams/${teamId}`, {
+            const res = await fetch(`http://localhost:4000/api/team/${teamId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
