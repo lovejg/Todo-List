@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./loginModal.css";
 
-function LoginModal({ isOpen, onClose, darkMode }) {
+function LoginModal({ isOpen, onClose, onLoginSuccess, darkMode }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -26,10 +26,21 @@ function LoginModal({ isOpen, onClose, darkMode }) {
         return;
       }
 
+      const accessToken = data?.accessToken;
+
+      if (!accessToken) {
+        console.error("Login response missing accessToken:", data);
+        alert("로그인 응답에 토큰이 없습니다.");
+        return;
+      }
+
       // 토큰 저장 전후 확인
-      console.log("Token from server:", data.token);
-      localStorage.setItem("token", data.token);
+      console.log("AccessToken from server:", accessToken);
+      localStorage.setItem("token", accessToken);
       console.log("Stored token:", localStorage.getItem("token"));
+      if (typeof onLoginSuccess === "function") {
+        onLoginSuccess();
+      }
       // 로그인 성공 시 토큰 저장
       alert("로그인이 완료되었습니다.");
       onClose();
