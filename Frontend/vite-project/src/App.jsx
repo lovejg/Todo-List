@@ -42,6 +42,18 @@ function App() {
     }
   }, []);
 
+  const checkTeamId = (value) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    if (typeof value === "number") {
+      return value;
+    }
+
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  };
+
   // === API Functions ===
   const fetchPersonalTodos = async () => {
     try {
@@ -50,12 +62,14 @@ function App() {
       const res = await fetch("http://localhost:4000/api/todo/personal", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
       if (res.ok) {
-        setPersonalTodos(data.todos);
+        const todos = Array.isArray(data) ? data : data?.todos || [];
+        setPersonalTodos(todos);
+        setError(null);
       } else {
-        setError(data.error || "할 일 목록을 가져오는데 실패했습니다.");
+        setError(data?.error || "할 일 목록을 가져오는데 실패했습니다.");
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -72,12 +86,22 @@ function App() {
       const res = await fetch("http://localhost:4000/api/team", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
       if (res.ok) {
-        setTeams(data.teams);
+        const teamsData = Array.isArray(data) ? data : data?.teams || [];
+        setTeams((prevTeams) =>
+          teamsData.map((team) => {
+            const existing = prevTeams.find((prev) => prev.id === team.id);
+            return {
+              ...team,
+              todos: existing?.todos || [],
+            };
+          })
+        );
+        setError(null);
       } else {
-        setError(data.error || "팀 목록을 가져오는데 실패했습니다.");
+        setError(data?.error || "팀 목록을 가져오는데 실패했습니다.");
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -89,21 +113,31 @@ function App() {
 
   const fetchTeamTodos = async (teamId) => {
     try {
+      const resolvedTeamId = checkTeamId(teamId);
+      if (resolvedTeamId === null) {
+        setError("응 이런 팀 없어");
+        return;
+      }
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:4000/api/team/${teamId}/todo`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const res = await fetch(
+        `http://localhost:4000/api/team/${resolvedTeamId}/todo`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json().catch(() => null);
 
       if (res.ok) {
-        setTeams(
-          teams.map((team) =>
-            team._id === teamId ? { ...team, todos: data.todos } : team
+        const todos = Array.isArray(data) ? data : data?.todos || [];
+        setTeams((prevTeams) =>
+          prevTeams.map((team) =>
+            team.id === resolvedTeamId ? { ...team, todos } : team
           )
         );
+        setError(null);
       } else {
-        setError(data.error || "팀 할 일 목록을 가져오는데 실패했습니다.");
+        setError(data?.error || "팀 할 일 목록을 가져오는데 실패했습니다.");
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -118,13 +152,23 @@ function App() {
     e.preventDefault();
     if (!inputValue.trim() || !isAuthenticated) return;
 
+    const teamId =
+      activePage === "personal"
+        ? checkTeamId(selectedTeam)
+        : checkTeamId(activePage);
+
+    if (activePage !== "personal" && teamId === null) {
+      setError("응 그런 팀 없어.");
+      return;
+    }
+
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const endpoint =
         activePage === "personal"
           ? "http://localhost:4000/api/todo/personal"
-          : `http://localhost:4000/api/team/${selectedTeam}/todo`;
+          : `http://localhost:4000/api/team/${teamId}/todo`;
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -132,7 +176,7 @@ function App() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ text: inputValue }),
+        body: JSON.stringify({ title: inputValue }),
       });
 
       if (res.ok) {
@@ -143,8 +187,8 @@ function App() {
         }
         setInputValue("");
       } else {
-        const data = await res.json();
-        setError(data.error || "할 일 추가에 실패했습니다.");
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "할 일 추가에 실패했습니다.");
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -155,13 +199,22 @@ function App() {
   };
 
   const handleToggle = async (todoId) => {
+    const teamId =
+      activePage === "personal"
+        ? checkTeamId(selectedTeam)
+        : checkTeamId(activePage);
+
+    if (activePage !== "personal" && teamId === null) {
+      setError("선택된 팀을 찾을 수 없습니다.");
+      return;
+    }
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const endpoint =
         activePage === "personal"
           ? `http://localhost:4000/api/todo/personal/${todoId}/toggle`
-          : `http://localhost:4000/api/team/${selectedTeam}/todo/${todoId}/toggle`;
+          : `http://localhost:4000/api/team/${teamId}/todo/${todoId}/toggle`;
 
       const res = await fetch(endpoint, {
         method: "PATCH",
@@ -171,12 +224,13 @@ function App() {
       if (res.ok) {
         if (activePage === "personal") {
           fetchPersonalTodos();
-        } else {
-          fetchTeamTodos(selectedTeam);
+        } else if (teamId !== null) {
+          fetchTeamTodos(teamId);
         }
+        setError(null);
       } else {
-        const data = await res.json();
-        setError(data.error || "할 일 상태 변경에 실패했습니다.");
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "할 일 상태 변경에 실패했습니다.");
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -187,13 +241,22 @@ function App() {
   };
 
   const deleteTodo = async (todoId) => {
+    const teamId =
+      activePage === "personal"
+        ? checkTeamId(selectedTeam)
+        : checkTeamId(activePage);
+
+    if (activePage !== "personal" && teamId === null) {
+      setError("선택된 팀을 찾을 수 없습니다.");
+      return;
+    }
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const endpoint =
         activePage === "personal"
           ? `http://localhost:4000/api/todo/personal/${todoId}`
-          : `http://localhost:4000/api/team/${selectedTeam}/todo/${todoId}`;
+          : `http://localhost:4000/api/team/${teamId}/todo/${todoId}`;
 
       const res = await fetch(endpoint, {
         method: "DELETE",
@@ -203,12 +266,13 @@ function App() {
       if (res.ok) {
         if (activePage === "personal") {
           fetchPersonalTodos();
-        } else {
-          fetchTeamTodos(selectedTeam);
+        } else if (teamId !== null) {
+          fetchTeamTodos(teamId);
         }
+        setError(null);
       } else {
-        const data = await res.json();
-        setError(data.error || "할 일 삭제에 실패했습니다.");
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "할 일 삭제에 실패했습니다.");
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -218,20 +282,29 @@ function App() {
     }
   };
 
-  const startEdit = (todoId, text) => {
+  const startEdit = (todoId, title) => {
     setEditTodoId(todoId);
-    setNewText(text);
+    setNewText(title);
     setEditModalOpen(true);
   };
 
   const saveEdit = async (newText) => {
+    const teamId =
+      activePage === "personal"
+        ? checkTeamId(selectedTeam)
+        : checkTeamId(activePage);
+
+    if (activePage !== "personal" && teamId === null) {
+      setError("선택된 팀을 찾을 수 없습니다.");
+      return;
+    }
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const endpoint =
         activePage === "personal"
           ? `http://localhost:4000/api/todo/personal/${editTodoId}`
-          : `http://localhost:4000/api/team/${selectedTeam}/todo/${editTodoId}`;
+          : `http://localhost:4000/api/team/${teamId}/todo/${editTodoId}`;
 
       const res = await fetch(endpoint, {
         method: "PUT",
@@ -239,21 +312,22 @@ function App() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ text: newText }),
+        body: JSON.stringify({ title: newText }),
       });
 
       if (res.ok) {
         if (activePage === "personal") {
           fetchPersonalTodos();
-        } else {
-          fetchTeamTodos(selectedTeam);
+        } else if (teamId !== null) {
+          fetchTeamTodos(teamId);
         }
         setEditModalOpen(false);
         setNewText("");
         setEditTodoId(null);
+        setError(null);
       } else {
-        const data = await res.json();
-        setError(data.error || "할 일 수정에 실패했습니다.");
+        const data = await res.json().catch(() => null);
+        setError(data?.error || "할 일 수정에 실패했습니다.");
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -326,7 +400,10 @@ function App() {
     setIsAuthenticated(false);
     setPersonalTodos([]);
     setTeams([]);
+    setSelectedTeam(null);
+    setMenuOpen(false);
     setActivePage("personal");
+    setError(null);
   };
 
   const startDelete = (todoId) => {
@@ -412,14 +489,14 @@ function App() {
             <button
               key={team._id}
               className="todo-btn-team"
-              onClick={() => setActivePage(team._id)}
+              onClick={() => setActivePage(team.id)}
             >
               <span>{team.name + " 할 일 목록"}</span>
               <span
                 className="more-btn"
                 onClick={(e) => {
                   e.stopPropagation();
-                  openMenu(team._id);
+                  openMenu(team.id);
                 }}
               >
                 ···
@@ -461,31 +538,31 @@ function App() {
               <h2>
                 {activePage === "personal"
                   ? "TO DO"
-                  : `${teams.find((t) => t._id === activePage)?.name} TO DO`}
+                  : `${teams.find((t) => t.id === activePage)?.name} TO DO`}
               </h2>
               <ul>
                 {(activePage === "personal"
                   ? personalTodos
-                  : teams.find((t) => t._id === activePage)?.todos || []
+                  : teams.find((t) => t.id === activePage)?.todos || []
                 )
-                  .filter((todo) => !todo.completed)
+                  .filter((todo) => !todo.done)
                   .map((todo) => (
-                    <li key={todo._id}>
+                    <li key={todo.id}>
                       <input
                         type="checkbox"
-                        checked={todo.completed}
-                        onChange={() => handleToggle(todo._id)}
+                        checked={todo.done}
+                        onChange={() => handleToggle(todo.id)}
                       />
-                      <span>{todo.text}</span>
+                      <span>{todo.title}</span>
                       <button
                         className="edit-btn"
-                        onClick={() => startEdit(todo._id, todo.text)}
+                        onClick={() => startEdit(todo.id, todo.title)}
                       >
                         수정
                       </button>
                       <button
                         className="delete-btn"
-                        onClick={() => startDelete(todo._id)}
+                        onClick={() => startDelete(todo.id)}
                       >
                         삭제
                       </button>
@@ -498,21 +575,21 @@ function App() {
               <h2>
                 {activePage === "personal"
                   ? "DONE"
-                  : `${teams.find((t) => t._id === activePage)?.name} DONE`}
+                  : `${teams.find((t) => t.id === activePage)?.name} DONE`}
               </h2>
               <ul>
                 {(activePage === "personal"
                   ? personalTodos
-                  : teams.find((t) => t._id === activePage)?.todos || []
+                  : teams.find((t) => t.id === activePage)?.todos || []
                 )
-                  .filter((todo) => todo.completed)
+                  .filter((todo) => todo.done)
                   .map((todo) => (
-                    <li key={todo._id}>
+                    <li key={todo.id}>
                       <input type="checkbox" checked={true} disabled />
-                      <span>{todo.text}</span>
+                      <span>{todo.title}</span>
                       <button
                         className="delete-btn"
-                        onClick={() => startDelete(todo._id)}
+                        onClick={() => startDelete(todo.id)}
                       >
                         삭제
                       </button>
