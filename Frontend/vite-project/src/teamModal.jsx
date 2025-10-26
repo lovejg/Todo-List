@@ -23,8 +23,12 @@ const TeamModal = ({ isOpen, onClose, onCreate, teamName, setTeamName }) => {
         onClose();
         return;
       }
-
-      setError(result?.error || "팀 생성 ㅈ됨 ㅋㅋ");
+      if (result?.clientError) {
+        setError("");
+        alert(result.error);
+        return;
+      }
+      setError(result?.error || "팀 생성에 실패했습니다.");
     } catch (err) {
       setError("서버 오류가 발생했습니다.");
       console.error("Error creating team:", err);

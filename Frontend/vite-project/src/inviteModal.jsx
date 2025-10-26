@@ -48,7 +48,13 @@ const InviteModal = ({ isOpen, onClose, teamId, invites, setInvites }) => {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "초대에 실패했습니다.");
+        const message = data?.error || "초대에 실패했습니다.";
+        if (res.status >= 400 && res.status < 500) {
+          setError("");
+          alert(message);
+        } else {
+          setError(message);
+        }
         return;
       }
 

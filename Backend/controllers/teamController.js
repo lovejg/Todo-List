@@ -110,7 +110,7 @@ const inviteMember = async (req, res) => {
     // 존재하는 유저인지 확인
     if (!existUser) {
       return res
-        .status(200)
+        .status(404)
         .json({ error: "해당 이메일의 사용자를 찾을 수 없습니다." });
     }
 
@@ -121,7 +121,7 @@ const inviteMember = async (req, res) => {
     // 이미 해당 팀 소속인지 확인
     if (alreadyTeam) {
       return res
-        .status(200)
+        .status(400)
         .json({ error: "이미 팀에 속해 있는 사용자입니다." });
     }
 

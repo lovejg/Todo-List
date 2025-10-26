@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./editModal.css"; // ...existing code...
 
 const EditModal = ({ isOpen, onClose, onSave, newText, setNewText }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setError("");
+      setLoading(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -22,9 +29,15 @@ const EditModal = ({ isOpen, onClose, onSave, newText, setNewText }) => {
 
     try {
       setLoading(true);
-      const success = await onSave(trimmedText);
-      if (!success) {
-        setError("ㅈ됨 수정 실패함 ㅅㅂ");
+      const result = await onSave(trimmedText).catch((err) => {
+        return {
+          success: false,
+          error: err?.message || "서버 오류가 발생했습니다.",
+        };
+      });
+      setLoading(false);
+      if (!result?.success) {
+        setError(result?.error || "할 일 수정에 실패했습니다.");
         return;
       }
 

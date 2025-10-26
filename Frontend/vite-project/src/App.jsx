@@ -158,7 +158,7 @@ function App() {
         : checkTeamId(activePage);
 
     if (activePage !== "personal" && teamId === null) {
-      setError("응 그런 팀 없어.");
+      setError("선택된 팀을 찾을 수 없습니다.");
       return;
     }
 
@@ -188,7 +188,13 @@ function App() {
         setInputValue("");
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error || "할 일 추가에 실패했습니다.");
+        const message = data?.error || "할 일 추가에 실패했습니다.";
+        if (res.status >= 400 && res.status < 500) {
+          setError(null);
+          alert(message);
+        } else {
+          setError(message);
+        }
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -230,7 +236,13 @@ function App() {
         setError(null);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error || "할 일 상태 변경에 실패했습니다.");
+        const message = data?.error || "할 일 상태 변경에 실패했습니다.";
+        if (res.status >= 400 && res.status < 500) {
+          setError(null);
+          alert(message);
+        } else {
+          setError(message);
+        }
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -272,7 +284,13 @@ function App() {
         setError(null);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error || "할 일 삭제에 실패했습니다.");
+        const message = data?.error || "할 일 삭제에 실패했습니다.";
+        if (res.status >= 400 && res.status < 500) {
+          setError(null);
+          alert(message);
+        } else {
+          setError(message);
+        }
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
@@ -296,7 +314,7 @@ function App() {
 
     if (activePage !== "personal" && teamId === null) {
       setError("선택된 팀을 찾을 수 없습니다.");
-      return;
+      return { success: false, error: "선택된 팀을 찾을 수 없습니다." };
     }
     try {
       setIsLoading(true);
@@ -327,11 +345,18 @@ function App() {
         setError(null);
       } else {
         const data = await res.json().catch(() => null);
-        setError(data?.error || "할 일 수정에 실패했습니다.");
+        const message = data?.error || "할 일 수정에 실패했습니다.";
+        if (res.status >= 400 && res.status < 500) {
+          setError(null);
+          alert(message);
+        } else {
+          setError(message);
+        }
+        return { success: false, error: message };
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
-      console.error("Error updating todo:", err);
+      return { success: false, error: "서버 연결에 실패했습니다." };
     } finally {
       setIsLoading(false);
     }
@@ -339,29 +364,44 @@ function App() {
 
   // === Team Management Functions ===
   const createTeam = async (name) => {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return { success: false, error: "팀 이름을 입력해주세요." };
+    }
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
+      if (!token) {
+        const message = "로그인이 필요합니다.";
+        setError(message);
+        return { success: false, error: message };
+      }
       const res = await fetch("http://localhost:4000/api/team", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name: trimmedName }),
       });
 
       if (res.ok) {
         fetchTeams();
-        setTeamModalOpen(false);
-        setTeamName("");
-      } else {
-        const data = await res.json();
-        setError(data.error || "팀 생성에 실패했습니다.");
+        setError(null);
+        return { success: true };
       }
+
+      const data = await res.json().catch(() => null);
+      const message = data?.error || "팀 생성에 실패했습니다.";
+      if (res.status >= 400 && res.status < 500) {
+        return { success: false, error: message, clientError: true };
+      }
+      setError(message);
+      return { success: false, error: message };
     } catch (err) {
-      setError("서버 연결에 실패했습니다.");
-      console.error("Error creating team:", err);
+      const message = "서버 연결에 실패했습니다.";
+      setError(message);
+      return { success: false, error: message };
     } finally {
       setIsLoading(false);
     }
@@ -383,12 +423,19 @@ function App() {
         fetchTeams();
         setMenuOpen(false);
       } else {
-        const data = await res.json();
-        setError(data.error || "팀 삭제에 실패했습니다.");
+        const data = await res.json().catch(() => null);
+        const message = data?.error || "팀 삭제에 실패했습니다.";
+        if (res.status >= 400 && res.status < 500) {
+          setError(null);
+          alert(message);
+        } else {
+          setError(message);
+        }
       }
     } catch (err) {
       setError("서버 연결에 실패했습니다.");
       console.error("Error removing team:", err);
+      setError("할 일 수정에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
