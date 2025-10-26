@@ -527,7 +527,7 @@ function App() {
       <aside className="sidebar">
         <div className="sidebar-item">
           <button
-            className="todo-btn-individual"
+            lassName={`todo-btn-individual ${activePage === "personal" ? "active" : ""}`}
             onClick={() => setActivePage("personal")}
           >
             개인 할 일 목록
@@ -535,7 +535,7 @@ function App() {
           {teams.map((team) => (
             <button
               key={team.id}
-              className="todo-btn-team"
+              className={`todo-btn-team ${activePage === team.id ? "active" : ""}`}
               onClick={() => setActivePage(team.id)}
             >
               <span>{team.name + " 할 일 목록"}</span>

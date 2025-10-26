@@ -139,6 +139,12 @@ nav {
   background-color: #555;
 }
 
+.todo-btn-individual.active,
+.todo-btn-team.active {
+  background-color: #444; /* 라이트 모드에서 선택된 색상 (더 어두운 회색) */
+  color: #fff;
+}
+
 .team-item {
   display: flex;
   align-items: center;
@@ -314,9 +320,9 @@ nav {
   padding: 10px;
   display: flex;
   align-items: center;
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9;
   border: 1px solid #eee;
-  border-radius: 5px;
+  border-radius: 5px; */
   margin-bottom: 10px;
 }
 
