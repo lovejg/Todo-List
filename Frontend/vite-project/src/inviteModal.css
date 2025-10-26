@@ -1,4 +1,4 @@
-.modal {
+.invite-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,7 +11,7 @@
   z-index: 999;
 }
 
-.modal-content {
+.invite-modal-content {
   background: #fff;
   border-radius: 12px;
   padding: 24px 28px;
@@ -20,7 +20,7 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.modal-content h2 {
+.invite-modal-content h2 {
   font-size: 20px;
   color: #333;
   margin-bottom: 16px;
@@ -78,7 +78,7 @@
   color: #333;
 }
 
-.delete-btn {
+.invite-delete-btn {
   background: none;
   border: none;
   color: #888;
@@ -86,7 +86,7 @@
   transition: color 0.2s;
 }
 
-.delete-btn:hover {
+.invite-delete-btn:hover {
   color: #e53935;
 }
 
@@ -97,7 +97,7 @@
   margin-top: 10px;
 }
 
-.modal-buttons {
+.invite-modal-buttons {
   display: flex;
   justify-content: center;
 }

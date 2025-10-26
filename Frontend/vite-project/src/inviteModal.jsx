@@ -78,8 +78,8 @@ const InviteModal = ({ isOpen, onClose, teamId, invites, setInvites }) => {
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
+    <div className="invite-modal">
+      <div className="invite-modal-content">
         <h2>팀원 초대</h2>
 
         <form onSubmit={handleInvite} className="invite-form">
@@ -105,7 +105,7 @@ const InviteModal = ({ isOpen, onClose, teamId, invites, setInvites }) => {
               <div key={index} className="invited-item">
                 <span className="member-email">{member}</span>
                 <button
-                  className="delete-btn"
+                  className="invite-delete-btn"
                   onClick={() => handleDelete(member)}
                 >
                   <Trash2 size={18} />
@@ -117,7 +117,7 @@ const InviteModal = ({ isOpen, onClose, teamId, invites, setInvites }) => {
           )}
         </div>
 
-        <div className="modal-buttons">
+        <div className="invite-modal-buttons">
           <button className="cancel-btn" onClick={onClose}>
             닫기
           </button>

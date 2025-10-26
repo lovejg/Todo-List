@@ -1,4 +1,4 @@
-.modal {
+.delete-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,7 +12,7 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.modal-content {
+.delete-modal-content {
   background-color: #fff;
   padding: 30px;
   border-radius: 10px;
@@ -22,19 +22,19 @@
   animation: scaleIn 0.3s ease-in-out;
 }
 
-.modal-content h2 {
+.delete-modal-content h2 {
   font-size: 22px;
   margin-bottom: 20px;
   color: #333;
 }
 
-.modal-content p {
+.delete-modal-content p {
   font-size: 16px;
   margin-bottom: 20px;
   color: #555;
 }
 
-.modal-content button {
+.delete-modal-content button {
   padding: 12px 24px;
   margin: 0 8px;
   border: none;
@@ -44,27 +44,27 @@
   transition: background-color 0.3s, transform 0.1s;
 }
 
-.modal-content button:first-of-type {
+.delete-modal-content button:first-of-type {
   background-color: black; /* 빨간색으로 삭제 버튼 강조 */
   color: #fff;
 }
 
-.modal-content button:last-of-type {
+.delete-modal-content button:last-of-type {
   background-color: #ccc;
   color: #333;
 }
 
-.modal-content button:first-of-type:hover {
+.delete-modal-content button:first-of-type:hover {
   background-color: #d32f2f;
   transform: translateY(-2px);
 }
 
-.modal-content button:last-of-type:hover {
+.delete-modal-content button:last-of-type:hover {
   background-color: #bbb;
   transform: translateY(-2px);
 }
 
-/* 다크모드 스타일 */
+/* 다크모드 스타일
 .modal.dark-mode .modal-content {
   background-color: #2a2a2a;
   color: #fff;
@@ -93,7 +93,7 @@
 
 .modal.dark-mode button:last-of-type:hover {
   background-color: #555;
-}
+} */
 
 /* 애니메이션 */
 @keyframes fadeIn {

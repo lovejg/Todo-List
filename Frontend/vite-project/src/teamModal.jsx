@@ -36,8 +36,8 @@ const TeamModal = ({ isOpen, onClose, onCreate, teamName, setTeamName }) => {
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
+    <div className="team-modal">
+      <div className="team-modal-content">
         <h2>팀 생성</h2>
         <form onSubmit={handleCreate}>
           <input

@@ -51,8 +51,8 @@ function LoginModal({ isOpen, onClose, onLoginSuccess, darkMode }) {
   };
 
   return (
-    <div className={`modal ${darkMode ? "dark-mode" : ""}`}>
-      <div className="modal-content">
+    <div className={`login-modal ${darkMode ? "dark-mode" : ""}`}>
+      <div className="login-modal-content">
         <h2>로그인</h2>
         <form onSubmit={handleSubmit}>
           <input

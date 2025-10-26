@@ -1,4 +1,4 @@
-.modal {
+.edit-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,7 +12,7 @@
   animation: fadeIn 0.3s ease-in-out; /* 모달 등장 애니메이션 추가 */
 }
 
-.modal-content {
+.edit-modal-content {
   background-color: #fff;
   padding: 30px; /* 패딩 증가로 더 여유롭게 */
   border-radius: 10px; /* 더 부드러운 라운딩 */
@@ -22,13 +22,13 @@
   animation: scaleIn 0.3s ease-in-out; /* 모달 등장 애니메이션 */
 }
 
-.modal-content h2 {
+.edit-modal-content h2 {
   font-size: 22px; /* 제목 크기 조정 */
   margin-bottom: 20px; /* 아래 여백 추가 */
   color: #333; /* 색상 명확히 */
 }
 
-.modal-content input[type="text"] {
+.edit-modal-content input[type="text"] {
   width: 100%; /* 전체 너비로 변경 */
   padding: 12px; /* 패딩 증가 */
   margin-bottom: 15px; /* 여백 증가 */
@@ -38,12 +38,12 @@
   transition: border-color 0.3s; /* 포커스 효과 전환 */
 }
 
-.modal-content input[type="text"]:focus {
+.edit-modal-content input[type="text"]:focus {
   border-color: #555; /* 포커스 시 테두리 색상 변경 */
   outline: none; /* 기본 아웃라인 제거 */
 }
 
-.modal-content button {
+.edit-modal-content button {
   padding: 12px 24px; /* 패딩 증가로 더 크고 편안하게 */
   margin: 0 8px; /* 버튼 간 간격 조정 */
   border: none;
@@ -53,22 +53,22 @@
   transition: background-color 0.3s, transform 0.1s; /* 호버 효과 전환 */
 }
 
-.modal-content button[type="submit"] {
+.edit-modal-content button[type="submit"] {
   background-color: #444;
   color: #fff;
 }
 
-.modal-content button[type="button"] {
+.edit-modal-content button[type="button"] {
   background-color: #ccc;
   color: #333;
 }
 
-.modal-content button:hover[type="submit"] {
+.edit-modal-content button:hover[type="submit"] {
   background-color: #555;
   transform: translateY(-2px); /* 호버 시 약간 위로 떠오르는 효과 */
 }
 
-.modal-content button:hover[type="button"] {
+.edit-modal-content button:hover[type="button"] {
   background-color: #bbb;
   transform: translateY(-2px); /* 호버 시 약간 위로 떠오르는 효과 */
 }

@@ -1,4 +1,4 @@
-.modal {
+.login-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,7 +12,7 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.modal-content {
+.login-modal-content {
   background-color: #fff;
   padding: 30px;
   border-radius: 10px;
@@ -22,14 +22,14 @@
   animation: scaleIn 0.3s ease-in-out;
 }
 
-.modal-content h2 {
+.login-modal-content h2 {
   font-size: 22px;
   margin-bottom: 20px;
   color: #333;
 }
 
-.modal-content input[type="email"],
-.modal-content input[type="password"] {
+.login-modal-content input[type="email"],
+.login-modal-content input[type="password"] {
   width: 100%;
   padding: 12px;
   margin-bottom: 15px;
@@ -40,13 +40,13 @@
   transition: border-color 0.3s;
 }
 
-.modal-content input[type="email"]:focus,
-.modal-content input[type="password"]:focus {
+.login-modal-content input[type="email"]:focus,
+.login-modal-content input[type="password"]:focus {
   border-color: #555;
   outline: none;
 }
 
-.modal-content button {
+.login-modal-content button {
   padding: 12px 24px;
   margin: 10px 8px 0;
   border: none;
@@ -56,27 +56,27 @@
   transition: background-color 0.3s, transform 0.1s;
 }
 
-.modal-content button[type="submit"] {
+.login-modal-content button[type="submit"] {
   background-color: #444;
   color: #fff;
 }
 
-.modal-content button[type="button"] {
+.login-modal-content button[type="button"] {
   background-color: #ccc;
   color: #333;
 }
 
-.modal-content button[type="submit"]:hover {
+.login-modal-content button[type="submit"]:hover {
   background-color: #555;
   transform: translateY(-2px);
 }
 
-.modal-content button[type="button"]:hover {
+.login-modal-content button[type="button"]:hover {
   background-color: #bbb;
   transform: translateY(-2px);
 }
 
-/* 다크모드 스타일 */
+/* 다크모드 스타일
 .modal.dark-mode .modal-content {
   background-color: #2a2a2a;
   color: #fff;
@@ -113,7 +113,7 @@
 
 .modal.dark-mode button[type="button"]:hover {
   background-color: #555;
-}
+} */
 
 /* 애니메이션 */
 @keyframes fadeIn {

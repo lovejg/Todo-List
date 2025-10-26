@@ -50,8 +50,8 @@ const EditModal = ({ isOpen, onClose, onSave, newText, setNewText }) => {
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
+    <div className="edit-modal">
+      <div className="edit-modal-content">
         <h2>할 일 수정</h2>
         <form onSubmit={handleSave}>
           <input

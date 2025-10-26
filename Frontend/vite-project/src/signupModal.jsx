@@ -60,8 +60,8 @@ function SignupModal({ isOpen, onClose, darkMode }) {
   
 
   return (
-    <div className={`modal ${darkMode ? 'dark-mode' : ''}`}>
-      <div className="modal-content">
+    <div className={`signup-modal ${darkMode ? 'dark-mode' : ''}`}>
+      <div className="signup-modal-content">
         <h2>회원가입</h2>
         <form onSubmit={handleSubmit}>
           <input
