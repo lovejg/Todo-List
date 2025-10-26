@@ -110,7 +110,7 @@ nav {
   gap: 10px;
 }
 
-.todo-btn-indiviual,
+.todo-btn-individual,
 .btn-team-create {
   background-color: #555;
   color: #fff;
@@ -123,25 +123,25 @@ nav {
   transition: background-color 0.3s;
 }
 
-.app-container.dark-mode .todo-btn-indiviual,
+.app-container.dark-mode .todo-btn-individual,
 .app-container.dark-mode .btn-team-create {
   background-color: #444;
   color: #e0e0e0;
 }
 
-.todo-btn-indiviual:hover,
+.todo-btn-individual:hover,
 .btn-team-create:hover {
   background-color: #666;
 }
 
-.app-container.dark-mode .todo-btn-indiviual:hover,
+.app-container.dark-mode .todo-btn-individual:hover,
 .app-container.dark-mode .btn-team-create:hover {
   background-color: #555;
 }
 
 .todo-btn-individual.active,
 .todo-btn-team.active {
-  background-color: #444; /* 라이트 모드에서 선택된 색상 (더 어두운 회색) */
+  background-color: #444;
   color: #fff;
 }
 

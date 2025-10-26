@@ -527,7 +527,7 @@ function App() {
       <aside className="sidebar">
         <div className="sidebar-item">
           <button
-            lassName={`todo-btn-individual ${activePage === "personal" ? "active" : ""}`}
+            className={`todo-btn-individual ${activePage === "personal" ? "active" : ""}`}
             onClick={() => setActivePage("personal")}
           >
             개인 할 일 목록
