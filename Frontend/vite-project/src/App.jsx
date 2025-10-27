@@ -111,14 +111,22 @@ function App() {
     }
   };
 
-  const fetchTeamTodos = async (teamId) => {
-    try {
-      const resolvedTeamId = checkTeamId(teamId);
-      if (resolvedTeamId === null) {
-        setError("응 이런 팀 없어");
-        return;
+  const fetchTeamTodos = async (
+    teamId,
+    { skipLoading = false, silent = false } = {}
+  ) => {
+    const resolvedTeamId = checkTeamId(teamId);
+    if (resolvedTeamId === null) {
+      const message = "선택된 팀을 찾을 수 없습니다.";
+      if (!silent) {
+        setError(message);
       }
-      setIsLoading(true);
+      return { success: false, error: message, clientError: true };
+    }
+    try {
+      if (!skipLoading) {
+        setIsLoading(true);
+      }
       const token = localStorage.getItem("token");
       const res = await fetch(
         `http://localhost:4000/api/team/${resolvedTeamId}/todo`,
@@ -178,16 +186,28 @@ function App() {
         },
         body: JSON.stringify({ title: inputValue }),
       });
+      const data = await res.json().catch(() => null);
 
       if (res.ok) {
         if (activePage === "personal") {
-          fetchPersonalTodos();
-        } else {
-          fetchTeamTodos(selectedTeam);
+          await fetchPersonalTodos();
+        } else if (teamId !== null) {
+          const createdTodo = data?.todo;
+          if (createdTodo) {
+            setTeams((prevTeams) =>
+              prevTeams.map((team) =>
+                team.id === teamId
+                  ? { ...team, todos: [createdTodo, ...(team.todos || [])] }
+                  : team
+              )
+            );
+          } else {
+            await fetchTeamTodos(teamId, { skipLoading: true });
+          }
         }
+        setError(null);
         setInputValue("");
       } else {
-        const data = await res.json().catch(() => null);
         const message = data?.error || "할 일 추가에 실패했습니다.";
         if (res.status >= 400 && res.status < 500) {
           setError(null);
@@ -527,7 +547,9 @@ function App() {
       <aside className="sidebar">
         <div className="sidebar-item">
           <button
-            className={`todo-btn-individual ${activePage === "personal" ? "active" : ""}`}
+            className={`todo-btn-individual ${
+              activePage === "personal" ? "active" : ""
+            }`}
             onClick={() => setActivePage("personal")}
           >
             개인 할 일 목록
@@ -535,7 +557,9 @@ function App() {
           {teams.map((team) => (
             <button
               key={team.id}
-              className={`todo-btn-team ${activePage === team.id ? "active" : ""}`}
+              className={`todo-btn-team ${
+                activePage === team.id ? "active" : ""
+              }`}
               onClick={() => setActivePage(team.id)}
             >
               <span>{team.name + " 할 일 목록"}</span>
