@@ -8,7 +8,6 @@ import LoginModal from "./loginModal.jsx";
 import ConfirmDeleteModal from "./confirmDeleteModal.jsx";
 
 function App() {
-  // === State Management ===
   const [darkMode, setDarkMode] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [teamModalOpen, setTeamModalOpen] = useState(false);
@@ -32,7 +31,6 @@ function App() {
   const [error, setError] = useState(null);
   const menuRef = useRef(null);
 
-  // === Authentication & Initial Data Loading ===
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -54,7 +52,6 @@ function App() {
     return Number.isNaN(parsed) ? null : parsed;
   };
 
-  // === API Functions ===
   const fetchPersonalTodos = async () => {
     try {
       setIsLoading(true);
@@ -155,7 +152,6 @@ function App() {
     }
   };
 
-  // === Todo Management Functions ===
   const addTodo = async (e) => {
     e.preventDefault();
     if (!inputValue.trim() || !isAuthenticated) return;
@@ -382,7 +378,6 @@ function App() {
     }
   };
 
-  // === Team Management Functions ===
   const createTeam = async (name) => {
     const trimmedName = name.trim();
     if (!trimmedName) {
@@ -461,7 +456,7 @@ function App() {
     }
   };
 
-  // === UI Event Handlers ===
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
@@ -489,7 +484,7 @@ function App() {
     setMenuOpen(true);
   };
 
-  // === Side Effects ===
+
   useEffect(() => {
     if (activePage !== "personal" && isAuthenticated) {
       fetchTeamTodos(activePage);
@@ -512,7 +507,7 @@ function App() {
     };
   }, [menuOpen]);
 
-  // === Render ===
+
   return (
     <div className={`app-container ${darkMode ? "dark" : ""}`}>
       <nav>
@@ -672,7 +667,6 @@ function App() {
         )}
       </main>
 
-      {/* Modals */}
       <TeamModal
         isOpen={teamModalOpen}
         onClose={() => setTeamModalOpen(false)}
