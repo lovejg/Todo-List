@@ -19,8 +19,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", require("./routes/auth"));
-app.use("/api/todo/personal", require("./routes/todos"));
-app.use("/api/team", require("./routes/teams"));
+app.use("/api/todos", require("./routes/todos"));
+app.use("/api/teams", require("./routes/teams"));
 
 // Server start
 const PORT = process.env.PORT || 4000;

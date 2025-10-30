@@ -1,6 +1,4 @@
-const { Todo, Team, TeamUser, User } = require("../models");
-
-/* 팀 API */
+const { Team, TeamUser, User } = require("../models");
 
 // 팀 생성
 const createTeam = async (req, res) => {
@@ -55,7 +53,7 @@ const getMyTeams = async (req, res) => {
 // 팀 상세 조회
 const getTeamDetail = async (req, res) => {
   try {
-    const teamId = req.params.id;
+    const teamId = req.params.teamId;
     const team = await Team.findByPk(teamId, {
       include: [
         {
@@ -78,7 +76,7 @@ const getTeamDetail = async (req, res) => {
 // 팀 삭제
 const deleteTeam = async (req, res) => {
   try {
-    const teamId = req.params.id;
+    const teamId = req.params.teamId;
     const userId = req.user.id;
 
     const member = await TeamUser.findOne({
@@ -100,7 +98,7 @@ const deleteTeam = async (req, res) => {
 // 팀 초대
 const inviteMember = async (req, res) => {
   try {
-    const teamId = req.params.id;
+    const teamId = req.params.teamId;
     const { email } = req.body;
 
     const existUser = await User.findOne({
@@ -132,156 +130,10 @@ const inviteMember = async (req, res) => {
   }
 };
 
-/* 팀 Todo API */
-
-// 팀 Todo 전체 조회
-const getTeamTodos = async (req, res) => {
-  try {
-    const teamId = req.params.id;
-    const userId = req.user.id;
-
-    const isMember = await TeamUser.findOne({
-      where: { team_id: teamId, user_id: userId },
-    });
-    if (!isMember) {
-      return res.status(403).json({ error: "팀에 속해 있지 않습니다." });
-    }
-
-    const todos = await Todo.findAll({
-      where: { team_id: teamId },
-      order: [["createdAt", "DESC"]],
-    });
-
-    if (!todos) {
-      return res.status(404).json({ error: "Todo를 찾을 수 없습니다!" });
-    }
-
-    res.status(200).json(todos);
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류" });
-  }
-};
-
-// 팀 Todo 추가
-const createTeamTodo = async (req, res) => {
-  try {
-    const teamId = req.params.id;
-    const userId = req.user.id;
-    const { title } = req.body;
-
-    const isMember = await TeamUser.findOne({
-      where: { team_id: teamId, user_id: userId },
-    });
-    if (!isMember) {
-      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다." });
-    }
-
-    const todo = await Todo.create({
-      title,
-      done: false,
-      team_id: teamId,
-    });
-
-    res.status(201).json({ message: "팀 Todo가 추가되었습니다.", todo });
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류" });
-  }
-};
-
-// 팀 Todo 수정
-const updateTeamTodo = async (req, res) => {
-  try {
-    const teamId = req.params.id;
-    const todoId = req.params.todoId;
-    const userId = req.user.id;
-    const { title } = req.body;
-
-    const isMember = await TeamUser.findOne({
-      where: { team_id: teamId, user_id: userId },
-    });
-    if (!isMember) {
-      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다." });
-    }
-
-    const todo = await Todo.findOne({ where: { id: todoId, team_id: teamId } });
-    if (!todo) {
-      return res.status(404).json({ error: "해당 Todo를 찾을 수 없습니다." });
-    }
-
-    todo.title = title || todo.title;
-    await todo.save();
-
-    res.status(200).json({ message: "팀 Todo가 수정되었습니다.", todo });
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류" });
-  }
-};
-
-// 팀 Todo 삭제
-const deleteTeamTodo = async (req, res) => {
-  try {
-    const teamId = req.params.id;
-    const todoId = req.params.todoId;
-    const userId = req.user.id;
-
-    const isMember = await TeamUser.findOne({
-      where: { team_id: teamId, user_id: userId },
-    });
-    if (!isMember) {
-      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다." });
-    }
-
-    const todo = await Todo.findOne({ where: { id: todoId, team_id: teamId } });
-    if (!todo) {
-      return res.status(404).json({ error: "해당 Todo를 찾을 수 없습니다." });
-    }
-
-    await todo.destroy();
-
-    res.status(200).json({ message: "팀 Todo가 삭제되었습니다." });
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류" });
-  }
-};
-
-// 팀 Todo 완료 여부 토글
-const toggleTeamTodo = async (req, res) => {
-  try {
-    const teamId = req.params.id;
-    const todoId = req.params.todoId;
-    const userId = req.user.id;
-
-    const isMember = await TeamUser.findOne({
-      where: { team_id: teamId, user_id: userId },
-    });
-    if (!isMember) {
-      return res.status(403).json({ error: "해당 팀에 속해 있지 않습니다." });
-    }
-
-    const todo = await Todo.findOne({ where: { id: todoId, team_id: teamId } });
-    if (!todo) {
-      return res.status(404).json({ error: "해당 Todo를 찾을 수 없습니다." });
-    }
-
-    todo.done = !todo.done;
-    await todo.save();
-
-    res.status(200).json({ message: "팀 Todo 상태가 변경되었습니다.", todo });
-  } catch (error) {
-    res.status(500).json({ error: "서버 오류" });
-  }
-};
-
 module.exports = {
   createTeam,
   getMyTeams,
   getTeamDetail,
   deleteTeam,
   inviteMember,
-
-  getTeamTodos,
-  createTeamTodo,
-  updateTeamTodo,
-  deleteTeamTodo,
-  toggleTeamTodo,
 };

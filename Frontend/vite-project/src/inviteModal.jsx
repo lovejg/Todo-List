@@ -35,7 +35,7 @@ const InviteModal = ({ isOpen, onClose, teamId, invites, setInvites }) => {
       }
 
       const res = await fetch(
-        `http://localhost:4000/api/team/${teamId}/invite`,
+        `http://localhost:4000/api/team/${teamId}/invitations`,
         {
           method: "POST",
           headers: {
@@ -46,7 +46,7 @@ const InviteModal = ({ isOpen, onClose, teamId, invites, setInvites }) => {
         }
       );
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
         const message = data?.error || "초대에 실패했습니다.";
         if (res.status >= 400 && res.status < 500) {

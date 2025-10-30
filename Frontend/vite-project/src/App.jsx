@@ -52,11 +52,14 @@ function App() {
     return Number.isNaN(parsed) ? null : parsed;
   };
 
+  const getActiveTeamId = () =>
+    activePage === "personal" ? null : checkTeamId(activePage);
+
   const fetchPersonalTodos = async () => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:4000/api/todo/personal", {
+      const res = await fetch("http://localhost:4000/api/todos", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json().catch(() => null);
@@ -80,7 +83,7 @@ function App() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:4000/api/team", {
+      const res = await fetch("http://localhost:4000/api/teams", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json().catch(() => null);
@@ -126,7 +129,7 @@ function App() {
       }
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `http://localhost:4000/api/team/${resolvedTeamId}/todo`,
+        `http://localhost:4000/api/todos?teamId=${resolvedTeamId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -140,26 +143,37 @@ function App() {
             team.id === resolvedTeamId ? { ...team, todos } : team
           )
         );
-        setError(null);
-      } else {
-        setError(data?.error || "팀 할 일 목록을 가져오는데 실패했습니다.");
+        if (!silent) {
+          setError(null);
+        }
+        return { success: true, todos };
+      }
+      const message = data?.error || "팀 할 일 목록을 가져오는데 실패했습니다.";
+      if (res.status >= 400 && res.status < 500) {
+        if (!silent) {
+          setError(null);
+          alert(message);
+        }
+        return { success: false, error: message, clientError: true };
       }
     } catch (err) {
-      setError("서버 연결에 실패했습니다.");
-      console.error("Error fetching team todos:", err);
+      if (!silent) {
+        setError("서버 연결에 실패했습니다.");
+      }
+      return { success: false, error: "서버 연결에 실패했습니다." };
     } finally {
-      setIsLoading(false);
+      if (!skipLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
   const addTodo = async (e) => {
     e.preventDefault();
-    if (!inputValue.trim() || !isAuthenticated) return;
+    const trimmed = inputValue.trim();
+    if (!trimmed || !isAuthenticated) return;
 
-    const teamId =
-      activePage === "personal"
-        ? checkTeamId(selectedTeam)
-        : checkTeamId(activePage);
+    const teamId = getActiveTeamId();
 
     if (activePage !== "personal" && teamId === null) {
       setError("선택된 팀을 찾을 수 없습니다.");
@@ -169,27 +183,27 @@ function App() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const endpoint =
-        activePage === "personal"
-          ? "http://localhost:4000/api/todo/personal"
-          : `http://localhost:4000/api/team/${teamId}/todo`;
+      const payload = { title: trimmed };
+      if (teamId !== null) {
+        payload.teamId = teamId;
+      }
 
-      const res = await fetch(endpoint, {
+      const res = await fetch("http://localhost:4000/api/todos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title: inputValue }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => null);
 
       if (res.ok) {
-        if (activePage === "personal") {
+        if (teamId === null) {
           await fetchPersonalTodos();
-        } else if (teamId !== null) {
-          const createdTodo = data?.todo;
-          if (createdTodo) {
+        } else {
+          const createdTodo = data && typeof data === "object" ? data : null;
+          if (createdTodo?.id) {
             setTeams((prevTeams) =>
               prevTeams.map((team) =>
                 team.id === teamId
@@ -220,11 +234,9 @@ function App() {
     }
   };
 
-  const handleToggle = async (todoId) => {
-    const teamId =
-      activePage === "personal"
-        ? checkTeamId(selectedTeam)
-        : checkTeamId(activePage);
+  const handleToggle = async (todo) => {
+    if (!todo) return;
+    const teamId = getActiveTeamId();
 
     if (activePage !== "personal" && teamId === null) {
       setError("선택된 팀을 찾을 수 없습니다.");
@@ -233,21 +245,21 @@ function App() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const endpoint =
-        activePage === "personal"
-          ? `http://localhost:4000/api/todo/personal/${todoId}/toggle`
-          : `http://localhost:4000/api/team/${teamId}/todo/${todoId}/toggle`;
 
-      const res = await fetch(endpoint, {
+      const res = await fetch(`http://localhost:4000/api/todos/${todo.id}`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ done: !todo.done }),
       });
 
       if (res.ok) {
-        if (activePage === "personal") {
+        if (teamId === null) {
           fetchPersonalTodos();
-        } else if (teamId !== null) {
-          fetchTeamTodos(teamId);
+        } else {
+          await fetchTeamTodos(teamId, { skipLoading: true });
         }
         setError(null);
       } else {
@@ -269,10 +281,7 @@ function App() {
   };
 
   const deleteTodo = async (todoId) => {
-    const teamId =
-      activePage === "personal"
-        ? checkTeamId(selectedTeam)
-        : checkTeamId(activePage);
+    const teamId = getActiveTeamId();
 
     if (activePage !== "personal" && teamId === null) {
       setError("선택된 팀을 찾을 수 없습니다.");
@@ -281,21 +290,16 @@ function App() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const endpoint =
-        activePage === "personal"
-          ? `http://localhost:4000/api/todo/personal/${todoId}`
-          : `http://localhost:4000/api/team/${teamId}/todo/${todoId}`;
-
-      const res = await fetch(endpoint, {
+      const res = await fetch(`http://localhost:4000/api/todos/${todoId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (res.ok) {
-        if (activePage === "personal") {
+        if (teamId === null) {
           fetchPersonalTodos();
-        } else if (teamId !== null) {
-          fetchTeamTodos(teamId);
+        } else {
+          await fetchTeamTodos(teamId, { skipLoading: true });
         }
         setError(null);
       } else {
@@ -322,11 +326,18 @@ function App() {
     setEditModalOpen(true);
   };
 
+  const closeEditModal = () => {
+    setEditModalOpen(false);
+    setNewText("");
+    setEditTodoId(null);
+  };
+
   const saveEdit = async (newText) => {
-    const teamId =
-      activePage === "personal"
-        ? checkTeamId(selectedTeam)
-        : checkTeamId(activePage);
+    const teamId = getActiveTeamId();
+
+    if (editTodoId === null || editTodoId === undefined) {
+      return { success: false, error: "수정할 할 일을 찾을 수 없습니다." };
+    }
 
     if (activePage !== "personal" && teamId === null) {
       setError("선택된 팀을 찾을 수 없습니다.");
@@ -335,13 +346,8 @@ function App() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const endpoint =
-        activePage === "personal"
-          ? `http://localhost:4000/api/todo/personal/${editTodoId}`
-          : `http://localhost:4000/api/team/${teamId}/todo/${editTodoId}`;
-
-      const res = await fetch(endpoint, {
-        method: "PUT",
+      const res = await fetch(`http://localhost:4000/api/todos/${editTodoId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -350,15 +356,13 @@ function App() {
       });
 
       if (res.ok) {
-        if (activePage === "personal") {
+        if (teamId === null) {
           fetchPersonalTodos();
-        } else if (teamId !== null) {
-          fetchTeamTodos(teamId);
+        } else {
+          await fetchTeamTodos(teamId, { skipLoading: true });
         }
-        setEditModalOpen(false);
-        setNewText("");
-        setEditTodoId(null);
         setError(null);
+        return { success: true };
       } else {
         const data = await res.json().catch(() => null);
         const message = data?.error || "할 일 수정에 실패했습니다.";
@@ -391,7 +395,7 @@ function App() {
         setError(message);
         return { success: false, error: message };
       }
-      const res = await fetch("http://localhost:4000/api/team", {
+      const res = await fetch("http://localhost:4000/api/teams", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -426,7 +430,7 @@ function App() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:4000/api/team/${teamId}`, {
+      const res = await fetch(`http://localhost:4000/api/teams/${teamId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -456,7 +460,6 @@ function App() {
     }
   };
 
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
@@ -484,7 +487,6 @@ function App() {
     setMenuOpen(true);
   };
 
-
   useEffect(() => {
     if (activePage !== "personal" && isAuthenticated) {
       fetchTeamTodos(activePage);
@@ -506,7 +508,6 @@ function App() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menuOpen]);
-
 
   return (
     <div className={`app-container ${darkMode ? "dark" : ""}`}>
@@ -677,7 +678,7 @@ function App() {
 
       <EditModal
         isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
+        onClose={closeEditModal}
         onSave={saveEdit}
         newText={newText}
         setNewText={setNewText}
