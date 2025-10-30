@@ -68,7 +68,7 @@ function App() {
   const findActiveTeam = () => {
     const teamId = getActiveTeamId();
     if (teamId === null) return null;
-    return teams.find((team) => toTeamId(team.id) === teamId) || null;
+    return teams.find((team) => checkTeamId(team.id) === teamId) || null;
   };
 
   const fetchPersonalTodos = async () => {
@@ -223,7 +223,7 @@ function App() {
           if (createdTodo?.id) {
             setTeams((prevTeams) =>
               prevTeams.map((team) =>
-                toTeamId(team.id) === teamId
+                checkTeamId(team.id) === teamId
                   ? { ...team, todos: [createdTodo, ...(team.todos || [])] }
                   : team
               )
@@ -251,8 +251,8 @@ function App() {
     }
   };
 
-  const handleToggle = async (todo) => {
-    if (!todo) return;
+  const handleToggle = async (todoId, currentDone) => {
+    if (todoId == null) return;
     const teamId = getActiveTeamId();
 
     if (activePage !== "personal" && teamId === null) {
@@ -263,13 +263,13 @@ function App() {
       setIsLoading(true);
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:4000/api/todos/${todo.id}`, {
+      const res = await fetch(`http://localhost:4000/api/todos/${todoId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ done: !todo.done }),
+        body: JSON.stringify({ done: !currentDone }),
       });
 
       if (res.ok) {
@@ -635,7 +635,7 @@ function App() {
                       <input
                         type="checkbox"
                         checked={todo.done}
-                        onChange={() => handleToggle(todo.id)}
+                        onChange={() => handleToggle(todo.id, todo.done)}
                       />
                       <span>{todo.title}</span>
                       <button
