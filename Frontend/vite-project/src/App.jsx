@@ -55,6 +55,22 @@ function App() {
   const getActiveTeamId = () =>
     activePage === "personal" ? null : checkTeamId(activePage);
 
+  const getTodoId = (todo) => {
+    if (!todo) return null;
+    const possibleId = todo.id ?? todo.todo_id ?? todo.todoId;
+    if (possibleId === null || possibleId === undefined) {
+      return null;
+    }
+    const numericId = Number(possibleId);
+    return Number.isNaN(numericId) ? null : numericId;
+  };
+
+  const findActiveTeam = () => {
+    const teamId = getActiveTeamId();
+    if (teamId === null) return null;
+    return teams.find((team) => toTeamId(team.id) === teamId) || null;
+  };
+
   const fetchPersonalTodos = async () => {
     try {
       setIsLoading(true);
@@ -203,10 +219,11 @@ function App() {
           await fetchPersonalTodos();
         } else {
           const createdTodo = data && typeof data === "object" ? data : null;
+          const createdTodoId = getTodoId(createdTodo);
           if (createdTodo?.id) {
             setTeams((prevTeams) =>
               prevTeams.map((team) =>
-                team.id === teamId
+                toTeamId(team.id) === teamId
                   ? { ...team, todos: [createdTodo, ...(team.todos || [])] }
                   : team
               )
