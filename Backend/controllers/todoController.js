@@ -135,6 +135,7 @@ const updateTodo = async (req, res) => {
       }
       todo.done = done;
     }
+    await todo.save();
     return res.status(200).json(todo);
   } catch (error) {
     return res.status(500).json({ error: "서버 오류" });

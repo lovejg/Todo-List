@@ -35,7 +35,7 @@ const InviteModal = ({ isOpen, onClose, teamId, invites, setInvites }) => {
       }
 
       const res = await fetch(
-        `http://localhost:4000/api/team/${teamId}/invitations`,
+        `http://localhost:4000/api/teams/${teamId}/invitations`,
         {
           method: "POST",
           headers: {
