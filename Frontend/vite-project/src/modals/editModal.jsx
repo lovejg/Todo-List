@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "./css/editModal.css"; // ...existing code...
+import "../css/editModal.css"; // ...existing code...
 
 const EditModal = ({ isOpen, onClose, onSave, newText, setNewText }) => {
   const [error, setError] = useState("");

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./css/inviteModal.css";
+import "../css/inviteModal.css";
 import { Trash2 } from "lucide-react"; // lucide-react 아이콘 (npm i lucide-react 필요)
 
 const InviteModal = ({ isOpen, onClose, teamId, invites, setInvites }) => {
