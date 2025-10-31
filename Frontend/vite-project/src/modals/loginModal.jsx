@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./loginModal.css";
+import "./css/loginModal.css";
 
 function LoginModal({ isOpen, onClose, onLoginSuccess, darkMode }) {
   const [email, setEmail] = useState("");

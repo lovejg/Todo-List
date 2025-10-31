@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './confirmDeleteModal.css'; // SignupModal과 유사한 CSS 사용, 필요시 복사
+import './css/confirmDeleteModal.css'; // SignupModal과 유사한 CSS 사용, 필요시 복사
 
 function ConfirmDeleteModal({ isOpen, onClose, onConfirm, darkMode }) {
   if (!isOpen) return null;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./teamModal.css";
+import "./css/teamModal.css";
 
 const TeamModal = ({ isOpen, onClose, onCreate, teamName, setTeamName }) => {
   const [error, setError] = useState("");
